@@ -1,46 +1,117 @@
-buildscript {
-    ext.kotlin_version = '1.2.31'
 
+buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.1.0"
     }
 }
 
+
 plugins {
-    id 'java'
+	id 'idea'
+    id 'application'
+    id "com.commercehub.gradle.plugin.avro" version "0.9.0"
+    id "io.franzbecker.gradle-lombok" version "1.14"
 }
 
-group 'test.samples'
-version '1.0-SNAPSHOT'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
-apply plugin: 'kotlin'
-
-sourceCompatibility = 1.8
 
 repositories {
+
+    jcenter()
     mavenCentral()
+
+    maven {
+        url 'https://packages.confluent.io/maven'
+    }
+}
+
+ext {
+    aspectjweaverVersion = '1.9.1'
+    junitJupiterVersion = '5.1.0'
+}
+
+version = '1.0.0-SNAPSHOT'
+
+configurations {
+    runAgent
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile 'org.codehaus.groovy:groovy-all:2.3.11'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    //compile 'com.typesafe.akka:akka-http_2.12:10.1.1'
+    //compile 'com.typesafe.akka:akka-http-jackson_2.12:10.1.1'
+    compile 'com.typesafe.akka:akka-stream_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-persistence_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-persistence-tck_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-persistence-cassandra_2.12:0.83'
+    //compile 'com.typesafe.akka:akka-cluster_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-cluster-metrics_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-distributed-data_2.12:2.5.12'
+    //compile 'com.typesafe.akka:akka-cluster-sharding_2.12:2.5.12'
+
+    compile 'com.typesafe.akka:akka-stream-kafka_2.12:0.20'
+    compile 'io.confluent:kafka-avro-serializer:3.3.1'
+    //compile 'commons-io:commons-io:2.6'
+    compile "org.apache.avro:avro:1.8.1"
+
+    //compile 'com.lightbend.akka.management:akka-management-cluster-bootstrap_2.12:0.13.0'
+    //compile 'com.lightbend.akka.discovery:akka-discovery-dns_2.12:0.13.0'
+    //compile 'com.lightbend.akka.discovery:akka-discovery-kubernetes-api_2.12:0.13.0'
+    //compile 'org.iq80.leveldb:leveldb:0.10'
+    //compile 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
+
+    runtime "org.aspectj:aspectjweaver:${aspectjweaverVersion}"
+    runAgent "org.aspectj:aspectjweaver:${aspectjweaverVersion}"
+    testCompile 'com.typesafe.akka:akka-http-testkit_2.12:10.0.11'
+    testCompile 'com.typesafe.akka:akka-testkit_2.12:2.5.12'
+    testCompile 'io.rest-assured:rest-assured:3.0.7'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testRuntime 'org.junit.platform:junit-platform-launcher:1.1.0'
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+
+mainClassName = 'com.samples.Main'
+
+
+avro {
+    createSetters = false
+    fieldVisibility = "PRIVATE"
 }
 
-apply plugin: 'kotlin'
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+test {
+    //Enables Gradle JUnit5
+    useJUnitPlatform()
 }
 
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+
+lombok {
+    version = "1.18.0"
+    sha256 = ""
 }
+
+
+run {
+    standardInput = System.in
+    /* Can pass all the properties: */
+    systemProperties System.getProperties()
+}
+
+
+applicationDefaultJvmArgs = [
+    "-javaagent:${configurations.runAgent.singleFile}"
+]
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.8'
+}
+
+
+

@@ -136,3 +136,23 @@ hs_err_pid*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+.gradle/
+.idea/.name
+.idea/codeStyles/
+.idea/compiler.xml
+.idea/dbnavigator.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/sbt.xml
+.idea/scala_settings.xml
+.idea/vcs.xml
+build.gradle
+build/kotlin-build/
+build/kotlin/
+build/resources/
+build/tmp/
+gradle/wrapper/gradle-wrapper.properties
+gradlew
+gradlew.bat
+settings.gradle
+build/
